@@ -1,0 +1,45 @@
+{
+   "abstract" : "A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.",
+   "author" : [
+      "Alex Balhatchet <kaoru@slackwise.net>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.102221, CPAN::Meta::Converter version 2.102160",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "App-highlight",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.31"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "App::Cmd::Simple" : 0,
+            "ExtUtils::MakeMaker" : 0,
+            "Term::ANSIColor" : 0
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : 0
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/kaoru/App-highlight.git",
+         "web" : "http://github.com/kaoru/App-highlight"
+      }
+   },
+   "version" : "0.01"
+}
+

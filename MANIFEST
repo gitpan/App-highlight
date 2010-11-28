@@ -1,0 +1,14 @@
+Changes
+LICENSE
+MANIFEST
+META.json
+META.yml
+Makefile.PL
+README
+README.pod
+bin/highlight
+dist.ini
+lib/App/highlight.pm
+t/00-compile.t
+t/release-pod-syntax.t
+t/words.txt
