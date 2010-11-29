@@ -3,6 +3,7 @@ abstract: 'A simple grep-like filter that highlights chosen words or lines rathe
 author:
   - 'Alex Balhatchet <kaoru@slackwise.net>'
 build_requires:
+  App::Cmd::Tester: 0
   Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.31
@@ -19,4 +20,4 @@ requires:
   Term::ANSIColor: 0
 resources:
   repository: git://github.com/kaoru/App-highlight.git
-version: 0.01
+version: 0.02

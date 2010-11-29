@@ -12,6 +12,7 @@ my %WriteMakefileArgs = (
   'ABSTRACT' => 'A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.',
   'AUTHOR' => 'Alex Balhatchet <kaoru@slackwise.net>',
   'BUILD_REQUIRES' => {
+    'App::Cmd::Tester' => '0',
     'Test::More' => '0'
   },
   'CONFIGURE_REQUIRES' => {
@@ -28,7 +29,7 @@ my %WriteMakefileArgs = (
     'ExtUtils::MakeMaker' => '0',
     'Term::ANSIColor' => '0'
   },
-  'VERSION' => '0.01',
+  'VERSION' => '0.02',
   'test' => {
     'TESTS' => 't/*.t'
   }

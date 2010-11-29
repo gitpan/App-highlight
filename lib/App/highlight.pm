@@ -3,7 +3,7 @@ use warnings;
 
 package App::highlight;
 BEGIN {
-  $App::highlight::VERSION = '0.01';
+  $App::highlight::VERSION = '0.02';
 }
 use base 'App::Cmd::Simple';
 
@@ -17,8 +17,9 @@ my $RESET = RESET;
 
 sub opt_spec {
     return (
-        [ 'no-escape|n' => "don't auto-escape input"          ],
-        [ 'full-line|l' => "highlight the whole matched line" ],
+        [ 'no-escape|n' => "don't auto-escape input"            ],
+        [ 'full-line|l' => "highlight the whole matched line"   ],
+        [ 'one-color|o' => "use only one color for all matches" ],
     );
 }
 
@@ -44,6 +45,12 @@ sub execute {
             @$args = map { "\Q$_" } @$args;
         }
         @matches = @$args;
+    }
+
+    my @COLORS = @COLORS;
+    my $RESET  = $RESET;
+    if ($opt->{'one_color'}) {
+        @COLORS = (BOLD RED);
     }
 
     while (<STDIN>) {
@@ -78,7 +85,7 @@ App::highlight - simple grep-like highlighter app
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
@@ -106,8 +113,19 @@ matched.
     quux
     corge
 
-Note that angle brackets are not used to highlight the words,
-Term::ANSIColor terminal highlighting is used.
+If you give multiple match parameters highlight will highlight each of them in
+a different color.
+
+    % cat words.txt | highlight ba qu
+    foo
+    >>ba<<r
+    >>ba<<z
+    [[qu]]x
+    [[qu]]ux
+    corge
+
+Note that brackets are not used to highlight the words, Term::ANSIColor
+terminal highlighting is used.
 
 =head1 OPTIONS
 
@@ -139,6 +157,19 @@ the full line is not matched.
 
 Note this is similar to '--no-escape "^.*match.*$"' but probably much
 more efficient.
+
+=head1 one-color [o]
+
+Rather than cycling through multiple colors, this makes highlight always use
+the same color for all highlights.
+
+    % cat words.txt | highlight --one-color ba qu
+    foo
+    >>ba<<r
+    >>ba<<z
+    >>qu<<x
+    >>qu<<ux
+    corge
 
 =head1 Copyright
 

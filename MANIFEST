@@ -10,5 +10,6 @@ bin/highlight
 dist.ini
 lib/App/highlight.pm
 t/00-compile.t
+t/01-basics.t
 t/release-pod-syntax.t
 t/words.txt
