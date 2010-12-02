@@ -12,8 +12,8 @@ my %WriteMakefileArgs = (
   'ABSTRACT' => 'A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.',
   'AUTHOR' => 'Alex Balhatchet <kaoru@slackwise.net>',
   'BUILD_REQUIRES' => {
-    'App::Cmd::Tester' => '0',
-    'Test::More' => '0'
+    'App::Cmd::Tester' => '0.309',
+    'Test::More' => '0.92'
   },
   'CONFIGURE_REQUIRES' => {
     'ExtUtils::MakeMaker' => '6.31'
@@ -25,11 +25,11 @@ my %WriteMakefileArgs = (
   'LICENSE' => 'perl',
   'NAME' => 'App::highlight',
   'PREREQ_PM' => {
-    'App::Cmd::Simple' => '0',
-    'ExtUtils::MakeMaker' => '0',
-    'Term::ANSIColor' => '0'
+    'App::Cmd::Simple' => '0.309',
+    'ExtUtils::MakeMaker' => '6.55_02',
+    'Term::ANSIColor' => '2'
   },
-  'VERSION' => '0.02',
+  'VERSION' => '0.03',
   'test' => {
     'TESTS' => 't/*.t'
   }
