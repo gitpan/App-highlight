@@ -4,11 +4,12 @@ author:
   - 'Alex Balhatchet <kaoru@slackwise.net>'
 build_requires:
   App::Cmd::Tester: 0.309
+  Test::Module::Without: 0.17
   Test::More: 0.92
 configure_requires:
   ExtUtils::MakeMaker: 6.31
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.102340, CPAN::Meta::Converter version 2.102160'
+generated_by: 'Dist::Zilla version 4.102221, CPAN::Meta::Converter version 2.102160'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,7 +18,8 @@ name: App-highlight
 requires:
   App::Cmd::Simple: 0.309
   ExtUtils::MakeMaker: 6.55_02
-  Term::ANSIColor: 2
+  Module::Load: 0.18
+  Try::Tiny: 0.09
 resources:
   repository: git://github.com/kaoru/App-highlight.git
-version: 0.03
+version: 0.04

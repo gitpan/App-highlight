@@ -3,23 +3,42 @@ use warnings;
 
 package App::highlight;
 BEGIN {
-  $App::highlight::VERSION = '0.03';
+  $App::highlight::VERSION = '0.04';
 }
 use base 'App::Cmd::Simple';
 
-use Term::ANSIColor ':constants';
+use Try::Tiny;
+use Module::Load qw(load);
 
-my @COLORS = map { BOLD $_ } (
-    RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN
+my $COLOR_SUPPORT = 1;
+my @COLORS;
+try {
+    load('Term::ANSIColor', 'color');
+    @COLORS = map { [ color("bold $_"), color('reset') ] } (
+        qw(red green yellow blue magenta cyan)
+    );
+}
+catch {
+    $COLOR_SUPPORT = 0;
+};
+
+my @NOCOLORS = (
+    [ '<<', '>>' ],
+    [ '[[', ']]' ],
+    [ '((', '))' ],
+    [ '{{', '}}' ],
+    [ '**', '**' ],
+    [ '__', '__' ],
 );
-
-my $RESET = RESET;
 
 sub opt_spec {
     return (
-        [ 'no-escape|n' => "don't auto-escape input"            ],
-        [ 'full-line|l' => "highlight the whole matched line"   ],
-        [ 'one-color|o' => "use only one color for all matches" ],
+        [ 'color|c'                         => "use terminal color for highlighting (default)" ],
+        [ 'nocolor|no-color'                => "don't use terminal color"                      ],
+        [ 'escape|e'                        => "auto-escape input (default)"                   ],
+        [ 'noescape|no-escape|regex|n|r'    => "don't auto-escape input (regex mode)"          ],
+        [ 'full-line|l'                     => "highlight the whole matched line"              ],
+        [ 'one-color|o'                     => "use only one color for all matches"            ],
     );
 }
 
@@ -39,18 +58,30 @@ sub validate_args {
 sub execute {
     my ($self, $opt, $args) = @_;
 
-    my @matches = (".+");
+    my @matches;
     if (scalar @$args) {
-        if (!$opt->{'no_escape'}) {
+        if ($opt->{'escape'} || !$opt->{'noescape'}) {
             @$args = map { "\Q$_" } @$args;
         }
         @matches = @$args;
     }
 
-    my @COLORS = @COLORS;
-    my $RESET  = $RESET;
+    my @HIGHLIGHTS;
+    if ($COLOR_SUPPORT &&
+        ($opt->{'color'} || !$opt->{'nocolor'})) {
+        @HIGHLIGHTS = @COLORS;
+    }
+    else {
+        @HIGHLIGHTS = @NOCOLORS;
+    }
+
+    if (!$COLOR_SUPPORT &&
+        ($opt->{'color'} || !$opt->{'nocolor'})) {
+        warn "Color support disabled. Install Term::ANSIColor to enable it.\n";
+    }
+
     if ($opt->{'one_color'}) {
-        @COLORS = (BOLD RED);
+        @HIGHLIGHTS = ($HIGHLIGHTS[0]);
     }
 
     while (<STDIN>) {
@@ -58,16 +89,16 @@ sub execute {
         foreach my $m (@matches) {
             if ($opt->{'full_line'}) {
                 if (m/$m/) {
-                    s/^/$COLORS[$i]/;
-                    s/$/$RESET/;
+                    s/^/$HIGHLIGHTS[$i][0]/;
+                    s/$/$HIGHLIGHTS[$i][1]/;
                 }
             }
             else {
-                s/($m)/$COLORS[$i] . $1 . $RESET/ge;
+                s/($m)/$HIGHLIGHTS[$i][0] . $1 . $HIGHLIGHTS[$i][1]/ge;
             }
 
             $i++;
-            $i %= @COLORS;
+            $i %= @HIGHLIGHTS;
         }
         print;
     }
@@ -85,7 +116,7 @@ App::highlight - simple grep-like highlighter app
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -107,8 +138,8 @@ matched.
 
     % cat words.txt | highlight ba
     foo
-    >>ba<<r
-    >>ba<<z
+    <<ba>>r
+    <<ba>>z
     qux
     quux
     corge
@@ -118,29 +149,65 @@ a different color.
 
     % cat words.txt | highlight ba qu
     foo
-    >>ba<<r
-    >>ba<<z
+    <<ba>>r
+    <<ba>>z
     [[qu]]x
     [[qu]]ux
     corge
 
-Note that brackets are not used to highlight the words, Term::ANSIColor
-terminal highlighting is used.
+If you have Term::ANSIColor installed then the strings will be highlighted
+using terminal colors rather than using brackets. This is highly reccommended
+as it makes the output much more useful.
 
 =head1 OPTIONS
 
-=head1 no-escape [n]
+=head1 color / c
+
+This is the default if Term::ANSIColor is installed.
+
+App::highlight will cycle through the colours:
+
+    red green yellow blue magenta cyan
+
+If you do not have Term::ANSIColor installed and you specify --color or you do
+not specify --no-color then you will receive a warning.
+
+=head1 no-color
+
+This is the default if Term::ANSIColor is not installed.
+
+App::highlight will cycle through the brackets:
+
+    <<match>> [[match]] ((match))  {{match}} **match** __match__
+
+The examples in the rest of this document use this mode because showing color
+highlighting in POD documentation is not possible.
+
+=head1 escape / e
+
+This is the default and means that the strings passed in will be escaped so
+that no special characters exist.
+
+    % cat words.txt | highlight --escape 'ba' '[qux]'
+    foo
+    <<ba>>r
+    <<ba>>z
+    qux
+    quux
+    <<c>>org<<e>>
+
+=head1 noescape / no-escape / n / regex / r
 
 This allows you to specify a regular expression instead of a simple
 string.
 
-    % cat words.txt | highlight --no-escape '[abcde]+'
+    % cat words.txt | highlight --no-escape 'ba' '[qux]'
     foo
-    >>ba<<r
-    >>ba<<z
-    qux
-    quux
-    >>c<<org>>e<<
+    <<ba>>r
+    <<ba>>z
+    [[q]][[u]][[x]]
+    [[q]][[u]][[u]][[x]]
+    corge
 
 =head1 full-line [l]
 
@@ -151,8 +218,8 @@ the full line is not matched.
     foo
     bar
     baz
-    >>qux<<
-    >>quux<<
+    <<qux>>
+    <<quux>>
     corge
 
 Note this is similar to '--no-escape "^.*match.*$"' but probably much
@@ -163,12 +230,15 @@ more efficient.
 Rather than cycling through multiple colors, this makes highlight always use
 the same color for all highlights.
 
+Despite the name "one-color" this interacts with the --no-color option as you
+would expect.
+
     % cat words.txt | highlight --one-color ba qu
     foo
-    >>ba<<r
-    >>ba<<z
-    >>qu<<x
-    >>qu<<ux
+    <<ba>>r
+    <<ba>>z
+    <<qu>>x
+    <<qu>>ux
     corge
 
 =head1 Copyright
