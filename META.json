@@ -23,6 +23,7 @@
          "requires" : {
             "App::Cmd::Simple" : "0.309",
             "ExtUtils::MakeMaker" : "6.55_02",
+            "Getopt::Long::Descriptive" : "0.085",
             "Module::Load" : "0.18",
             "Try::Tiny" : "0.09"
          }
@@ -30,8 +31,8 @@
       "test" : {
          "requires" : {
             "App::Cmd::Tester" : "0.309",
-            "Test::Module::Without" : "0.17",
-            "Test::More" : "0.92"
+            "Test::More" : "0.92",
+            "Test::Without::Module" : "0.17"
          }
       }
    },
@@ -43,6 +44,6 @@
          "web" : "http://github.com/kaoru/App-highlight"
       }
    },
-   "version" : "0.04"
+   "version" : "0.06"
 }
 

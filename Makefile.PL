@@ -13,8 +13,8 @@ my %WriteMakefileArgs = (
   'AUTHOR' => 'Alex Balhatchet <kaoru@slackwise.net>',
   'BUILD_REQUIRES' => {
     'App::Cmd::Tester' => '0.309',
-    'Test::Module::Without' => '0.17',
-    'Test::More' => '0.92'
+    'Test::More' => '0.92',
+    'Test::Without::Module' => '0.17'
   },
   'CONFIGURE_REQUIRES' => {
     'ExtUtils::MakeMaker' => '6.31'
@@ -28,10 +28,11 @@ my %WriteMakefileArgs = (
   'PREREQ_PM' => {
     'App::Cmd::Simple' => '0.309',
     'ExtUtils::MakeMaker' => '6.55_02',
+    'Getopt::Long::Descriptive' => '0.085',
     'Module::Load' => '0.18',
     'Try::Tiny' => '0.09'
   },
-  'VERSION' => '0.04',
+  'VERSION' => '0.06',
   'test' => {
     'TESTS' => 't/*.t'
   }

@@ -3,12 +3,13 @@ use warnings;
 
 package App::highlight;
 BEGIN {
-  $App::highlight::VERSION = '0.04';
+  $App::highlight::VERSION = '0.06';
 }
 use base 'App::Cmd::Simple';
 
 use Try::Tiny;
 use Module::Load qw(load);
+use Getopt::Long::Descriptive;
 
 my $COLOR_SUPPORT = 1;
 my @COLORS;
@@ -33,17 +34,35 @@ my @NOCOLORS = (
 
 sub opt_spec {
     return (
-        [ 'color|c'                         => "use terminal color for highlighting (default)" ],
-        [ 'nocolor|no-color'                => "don't use terminal color"                      ],
-        [ 'escape|e'                        => "auto-escape input (default)"                   ],
-        [ 'noescape|no-escape|regex|n|r'    => "don't auto-escape input (regex mode)"          ],
-        [ 'full-line|l'                     => "highlight the whole matched line"              ],
-        [ 'one-color|o'                     => "use only one color for all matches"            ],
+        [
+            one_of => [
+                [ 'color|c'          => "use terminal color for highlighting (default)" ],
+                [ 'nocolor|no-color' => "don't use terminal color"                      ],
+            ],
+        ],
+        [
+            one_of => [
+                [ 'escape|e'                     => "auto-escape input (default)"          ],
+                [ 'noescape|no-escape|regex|n|r' => "don't auto-escape input (regex mode)" ],
+            ]
+        ],
+        [ 'full-line|l' => "highlight the whole matched line"   ],
+        [ 'one-color|o' => "use only one color for all matches" ],
+        [ 'help|h'      => "display a usage message"            ],
     );
 }
 
 sub validate_args {
     my ($self, $opt, $args) = @_;
+
+    if ($opt->{'help'}) {
+        my ($opt, $usage) = describe_options(
+            $self->usage_desc(),
+            $self->opt_spec(),
+        );
+        print $usage;
+        exit;
+    }
 
     if (!@$args) {
         $self->usage_error(
@@ -116,7 +135,7 @@ App::highlight - simple grep-like highlighter app
 
 =head1 VERSION
 
-version 0.04
+version 0.06
 
 =head1 SYNOPSIS
 
@@ -155,13 +174,16 @@ a different color.
     [[qu]]ux
     corge
 
+=head1 Color Support
+
 If you have Term::ANSIColor installed then the strings will be highlighted
-using terminal colors rather than using brackets. This is highly reccommended
-as it makes the output much more useful.
+using terminal colors rather than using brackets.
+
+Installing color support by installing Term::ANSIColor is highly reccommended.
 
 =head1 OPTIONS
 
-=head1 color / c
+=head2 color / c
 
 This is the default if Term::ANSIColor is installed.
 
@@ -172,7 +194,7 @@ App::highlight will cycle through the colours:
 If you do not have Term::ANSIColor installed and you specify --color or you do
 not specify --no-color then you will receive a warning.
 
-=head1 no-color
+=head2 no-color
 
 This is the default if Term::ANSIColor is not installed.
 
@@ -183,7 +205,7 @@ App::highlight will cycle through the brackets:
 The examples in the rest of this document use this mode because showing color
 highlighting in POD documentation is not possible.
 
-=head1 escape / e
+=head2 escape / e
 
 This is the default and means that the strings passed in will be escaped so
 that no special characters exist.
@@ -196,7 +218,7 @@ that no special characters exist.
     quux
     <<c>>org<<e>>
 
-=head1 noescape / no-escape / n / regex / r
+=head2 noescape / no-escape / n / regex / r
 
 This allows you to specify a regular expression instead of a simple
 string.
@@ -209,7 +231,7 @@ string.
     [[q]][[u]][[u]][[x]]
     corge
 
-=head1 full-line [l]
+=head2 full-line / l
 
 This makes highlight always highlight full lines of input, even when
 the full line is not matched.
@@ -225,7 +247,7 @@ the full line is not matched.
 Note this is similar to '--no-escape "^.*match.*$"' but probably much
 more efficient.
 
-=head1 one-color [o]
+=head2 one-color / o
 
 Rather than cycling through multiple colors, this makes highlight always use
 the same color for all highlights.
@@ -240,6 +262,12 @@ would expect.
     <<qu>>x
     <<qu>>ux
     corge
+
+=head2 help / h
+
+Show a brief help message
+
+    % highlight --help
 
 =head1 Copyright
 

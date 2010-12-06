@@ -15,6 +15,7 @@ t/02-escaping.t
 t/03-colors.t
 t/04-full-line.t
 t/05-nocolors.t
+t/99-help.t
 t/Test/AppHighlightWords.pm
 t/release-pod-syntax.t
 t/words.txt
