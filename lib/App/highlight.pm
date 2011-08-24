@@ -2,8 +2,8 @@ use strict;
 use warnings;
 
 package App::highlight;
-BEGIN {
-  $App::highlight::VERSION = '0.06';
+{
+  $App::highlight::VERSION = '0.07';
 }
 use base 'App::Cmd::Simple';
 
@@ -14,7 +14,7 @@ use Getopt::Long::Descriptive;
 my $COLOR_SUPPORT = 1;
 my @COLORS;
 try {
-    load('Term::ANSIColor', 'color');
+    load('Term::ANSIColor', 'color', 'colored');
     @COLORS = map { [ color("bold $_"), color('reset') ] } (
         qw(red green yellow blue magenta cyan)
     );
@@ -36,19 +36,20 @@ sub opt_spec {
     return (
         [
             one_of => [
-                [ 'color|c'          => "use terminal color for highlighting (default)" ],
-                [ 'nocolor|no-color' => "don't use terminal color"                      ],
+                [ 'color|c'    => "use terminal color for highlighting (default)" ],
+                [ 'no-color|C' => "don't use terminal color"                      ],
             ],
         ],
         [
             one_of => [
-                [ 'escape|e'                     => "auto-escape input (default)"          ],
-                [ 'noescape|no-escape|regex|n|r' => "don't auto-escape input (regex mode)" ],
+                [ 'escape|e'            => "auto-escape input (default)"          ],
+                [ 'no-escape|regex|n|r' => "don't auto-escape input (regex mode)" ],
             ]
         ],
-        [ 'full-line|l' => "highlight the whole matched line"   ],
-        [ 'one-color|o' => "use only one color for all matches" ],
-        [ 'help|h'      => "display a usage message"            ],
+        [ 'full-line|l'       => "highlight the whole matched line"     ],
+        [ 'one-color|o'       => "use only one color for all matches"   ],
+        [ 'show-bad-spaces|b' => "highlight spaces at the end of lines" ],
+        [ 'help|h'            => "display a usage message"              ],
     );
 }
 
@@ -61,10 +62,13 @@ sub validate_args {
             $self->opt_spec(),
         );
         print $usage;
+        print "\n";
+        print "For more detailed help see 'perldoc App::highlight'\n";
+        print "\n";
         exit;
     }
 
-    if (!@$args) {
+    if (!@$args && !$opt->{'show_bad_spaces'}) {
         $self->usage_error(
             "No arguments given!\n" .
             "What do you want me to highlight?\n"
@@ -79,7 +83,7 @@ sub execute {
 
     my @matches;
     if (scalar @$args) {
-        if ($opt->{'escape'} || !$opt->{'noescape'}) {
+        if ($opt->{'escape'} || !$opt->{'no_escape'}) {
             @$args = map { "\Q$_" } @$args;
         }
         @matches = @$args;
@@ -87,7 +91,7 @@ sub execute {
 
     my @HIGHLIGHTS;
     if ($COLOR_SUPPORT &&
-        ($opt->{'color'} || !$opt->{'nocolor'})) {
+        ($opt->{'color'} || !$opt->{'no_color'})) {
         @HIGHLIGHTS = @COLORS;
     }
     else {
@@ -95,7 +99,7 @@ sub execute {
     }
 
     if (!$COLOR_SUPPORT &&
-        ($opt->{'color'} || !$opt->{'nocolor'})) {
+        ($opt->{'color'} || !$opt->{'no_color'})) {
         warn "Color support disabled. Install Term::ANSIColor to enable it.\n";
     }
 
@@ -119,6 +123,17 @@ sub execute {
             $i++;
             $i %= @HIGHLIGHTS;
         }
+
+        if ($opt->{'show_bad_spaces'}) {
+            if ($opt->{'color'} || !$opt->{'no_color'}) {
+                s{(\s+)(?=$/)$}{colored($1, "white on_red")}e;
+                #s{(\s+)(?=$/)$}{"[start-red]" . $1 . "[end-red]"}e;
+            }
+            else {
+                s{(\s+)(?=$/)$}{"X" x length($1)}e;
+            }
+        }
+
         print;
     }
 
@@ -135,7 +150,7 @@ App::highlight - simple grep-like highlighter app
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -194,7 +209,7 @@ App::highlight will cycle through the colours:
 If you do not have Term::ANSIColor installed and you specify --color or you do
 not specify --no-color then you will receive a warning.
 
-=head2 no-color
+=head2 no-color / C
 
 This is the default if Term::ANSIColor is not installed.
 
@@ -218,7 +233,7 @@ that no special characters exist.
     quux
     <<c>>org<<e>>
 
-=head2 noescape / no-escape / n / regex / r
+=head2 no-escape / n / regex / r
 
 This allows you to specify a regular expression instead of a simple
 string.
@@ -262,6 +277,27 @@ would expect.
     <<qu>>x
     <<qu>>ux
     corge
+
+=head2 show-bad-spaces / b
+
+With this option turned on whitespace characters which appear at the end of
+lines are colored red.
+
+For users familiar with git, this is replicating the default behaviour of "git
+diff".
+
+In non-color mode whitespace characters which appear at the end of lines are
+filled in with capital "X" characters instead.
+
+    % cat words_with_spaces | highlight --show-bad-spaces
+    test
+    test with spaces
+    test with spaces on the endXXXX
+    just spaces on the next line
+    XXXXXXXX
+    empty line next
+
+    end of test
 
 =head2 help / h
 
