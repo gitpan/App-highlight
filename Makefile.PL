@@ -9,32 +9,32 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.',
-  'AUTHOR' => 'Alex Balhatchet <kaoru@slackwise.net>',
-  'BUILD_REQUIRES' => {
-    'App::Cmd::Tester' => '0.309',
-    'Test::More' => '0.92',
-    'Test::Without::Module' => '0.17'
+  "ABSTRACT" => "A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.",
+  "AUTHOR" => "Alex Balhatchet <kaoru\@slackwise.net>",
+  "BUILD_REQUIRES" => {
+    "App::Cmd::Tester" => "0.309",
+    "Test::More" => "0.92",
+    "Test::Without::Module" => "0.17"
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
   },
-  'DISTNAME' => 'App-highlight',
-  'EXE_FILES' => [
-    'bin/highlight'
+  "DISTNAME" => "App-highlight",
+  "EXE_FILES" => [
+    "bin/highlight"
   ],
-  'LICENSE' => 'perl',
-  'NAME' => 'App::highlight',
-  'PREREQ_PM' => {
-    'App::Cmd::Simple' => '0.309',
-    'ExtUtils::MakeMaker' => '6.55_02',
-    'Getopt::Long::Descriptive' => '0.085',
-    'Module::Load' => '0.18',
-    'Try::Tiny' => '0.09'
+  "LICENSE" => "perl",
+  "NAME" => "App::highlight",
+  "PREREQ_PM" => {
+    "App::Cmd::Simple" => "0.309",
+    "ExtUtils::MakeMaker" => "6.55_02",
+    "Getopt::Long::Descriptive" => "0.085",
+    "Module::Load" => "0.18",
+    "Try::Tiny" => "0.09"
   },
-  'VERSION' => '0.08',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "0.09",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

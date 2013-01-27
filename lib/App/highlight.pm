@@ -3,7 +3,7 @@ use warnings;
 
 package App::highlight;
 {
-  $App::highlight::VERSION = '0.08';
+  $App::highlight::VERSION = '0.09';
 }
 use base 'App::Cmd::Simple';
 
@@ -46,6 +46,7 @@ sub opt_spec {
                 [ 'no-escape|regex|n|r' => "don't auto-escape input (regex mode)" ],
             ]
         ],
+        [ 'ignore-case|i'     => "ignore case for matches"              ],
         [ 'full-line|l'       => "highlight the whole matched line"     ],
         [ 'one-color|o'       => "use only one color for all matches"   ],
         [ 'show-bad-spaces|b' => "highlight spaces at the end of lines" ],
@@ -107,17 +108,27 @@ sub execute {
         @HIGHLIGHTS = ($HIGHLIGHTS[0]);
     }
 
+    my $ignore_case = '';
+    if ($opt->{'ignore_case'}) {
+        if ($^V lt v5.14.0) {
+            $ignore_case = '(?i)';
+        }
+        else {
+            $ignore_case = '(?^i)';
+        }
+    }
+
     while (<STDIN>) {
         my $i = 0;
         foreach my $m (@matches) {
             if ($opt->{'full_line'}) {
-                if (m/$m/) {
+                if (m/${ignore_case}$m/) {
                     s/^/$HIGHLIGHTS[$i][0]/;
                     s/$/$HIGHLIGHTS[$i][1]/;
                 }
             }
             else {
-                s/($m)/$HIGHLIGHTS[$i][0] . $1 . $HIGHLIGHTS[$i][1]/ge;
+                s/(${ignore_case}$m)/$HIGHLIGHTS[$i][0] . $1 . $HIGHLIGHTS[$i][1]/ge;
             }
 
             $i++;
@@ -150,7 +161,7 @@ App::highlight - simple grep-like highlighter app
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
