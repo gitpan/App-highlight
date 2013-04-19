@@ -4,7 +4,7 @@
       "Alex Balhatchet <kaoru@slackwise.net>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300029, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300034, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -49,6 +49,6 @@
          "web" : "http://github.com/kaoru/App-highlight"
       }
    },
-   "version" : "0.09"
+   "version" : "0.10"
 }
 

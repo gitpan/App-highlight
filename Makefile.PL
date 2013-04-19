@@ -11,11 +11,7 @@ use ExtUtils::MakeMaker 6.30;
 my %WriteMakefileArgs = (
   "ABSTRACT" => "A simple grep-like filter that highlights chosen words or lines rather than removing non-filtered lines.",
   "AUTHOR" => "Alex Balhatchet <kaoru\@slackwise.net>",
-  "BUILD_REQUIRES" => {
-    "App::Cmd::Tester" => "0.309",
-    "Test::More" => "0.92",
-    "Test::Without::Module" => "0.17"
-  },
+  "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
@@ -32,12 +28,30 @@ my %WriteMakefileArgs = (
     "Module::Load" => "0.18",
     "Try::Tiny" => "0.09"
   },
-  "VERSION" => "0.09",
+  "TEST_REQUIRES" => {
+    "App::Cmd::Tester" => "0.309",
+    "Test::More" => "0.92",
+    "Test::Without::Module" => "0.17"
+  },
+  "VERSION" => "0.10",
   "test" => {
     "TESTS" => "t/*.t"
   }
 );
 
+
+unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
+  my $tr = delete $WriteMakefileArgs{TEST_REQUIRES};
+  my $br = $WriteMakefileArgs{BUILD_REQUIRES};
+  for my $mod ( keys %$tr ) {
+    if ( exists $br->{$mod} ) {
+      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
+    }
+    else {
+      $br->{$mod} = $tr->{$mod};
+    }
+  }
+}
 
 unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
   my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
