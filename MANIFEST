@@ -21,6 +21,7 @@ t/07-ignore-case.t
 t/88-version.t
 t/99-help.t
 t/Test/AppHighlightWords.pm
+t/release-cpan-changes.t
 t/release-pod-syntax.t
 t/words.txt
 t/words_with_capitals.txt
